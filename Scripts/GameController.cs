@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using TMPro;
 using Photon.Pun;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
@@ -109,14 +110,13 @@ public class GameController : MonoBehaviourPunCallbacks
     private void CreateSphere()
     {
         var v = new Vector3(-0.43f, 2.7f, 9.3f);
-        GameObject ballObj = PhotonNetwork.Instantiate("PhotonSphere", v, Quaternion.identity);
+        //シーンオブジェクト(マスタークライアントが変更されても消失しない)として生成
+        GameObject ballObj = PhotonNetwork.InstantiateSceneObject("PhotonSphere", v, Quaternion.identity);
         ball = ballObj.GetComponent<BallScript>();
-        //イベント登録
-        ball.action = CalculateScore;
     }
 
-    //得点計算(自身が生成したボールオブジェクトがゴールしたときのみ呼ばれる)
-    private void CalculateScore(string goalColor)
+    //得点計算(自身が生成(所持)したボールオブジェクトがゴールしたときのみ呼ばれる)
+    public void CalculateScore(string goalColor)
     {
         if (goalColor == "Green")
         {
@@ -176,11 +176,26 @@ public class GameController : MonoBehaviourPunCallbacks
         }
     }
 
+    public void goalAction(string teamColor)
+    {
+        StartCoroutine(showGoalEffect(teamColor));
+    }
+    private IEnumerator showGoalEffect(string teamColor)
+    {
+        if (redScore >= ClearScore || greenScore >= ClearScore)
+        {
+            yield break;
+        }
+        game_Status.text = teamColor + "Team Goal!";
+        yield return new WaitForSeconds(3f);
+        game_Status.text = "";
+
+    }
+
     //ルームから退出する
     public void RestartGame()
     {
         targetcam.SetTarget(this.transform);
-        PhotonNetwork.DestroyAll();
         PhotonNetwork.LeaveRoom();
     }
 

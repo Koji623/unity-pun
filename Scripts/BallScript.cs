@@ -1,15 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 using Photon.Pun;
 
 [RequireComponent(typeof(PhotonView))]
 [RequireComponent(typeof(Rigidbody))]
 public class BallScript : MonoBehaviourPunCallbacks
 {
-    //GameControllerで登録するイベント
-    public UnityAction<string> action;
     private bool isGoal = false;
 
     void OnCollisionEnter(Collision other)
@@ -18,11 +13,14 @@ public class BallScript : MonoBehaviourPunCallbacks
         {
             if (other.gameObject.tag == "Goal_Green")
             {
-                action("Red");
+                GameObject.FindWithTag("GameController").GetComponent<GameController>().CalculateScore("Red");
+                photonView.RPC("PutGoalMessage", RpcTarget.All, "Red");
             }
             else if (other.gameObject.tag == "Goal_Red")
             {
-                action("Green");
+                GameObject.FindWithTag("GameController").GetComponent<GameController>().CalculateScore("Green");
+                photonView.RPC("PutGoalMessage", RpcTarget.All, "Green");
+
             }
             else
             {
@@ -36,5 +34,11 @@ public class BallScript : MonoBehaviourPunCallbacks
     void DestroyMine()
     {
         PhotonNetwork.Destroy(gameObject);
+    }
+
+    [PunRPC]
+    void PutGoalMessage(string teamColor)
+    {
+        GameObject.FindWithTag("GameController").GetComponent<GameController>().goalAction(teamColor);
     }
 }

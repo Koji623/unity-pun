@@ -91,7 +91,6 @@ public class TitleController : MonoBehaviourPunCallbacks
     //ランダム参加
     public void joinGame()
     {
-        PhotonNetwork.LocalPlayer.NickName = nameValue;
         PhotonNetwork.JoinRandomRoom();
         LoadingObj.SetActive(true);
     }
@@ -105,7 +104,6 @@ public class TitleController : MonoBehaviourPunCallbacks
     //ルーム作成 & 参加
     public void CreateRoom()
     {
-        PhotonNetwork.LocalPlayer.NickName = nameValue;
         LoadingObj.SetActive(true);
 
         RoomOptions roomOptions = new RoomOptions { MaxPlayers = maxPlayersPerRoom };
@@ -118,7 +116,7 @@ public class TitleController : MonoBehaviourPunCallbacks
         };
         roomOptions.CustomRoomProperties = customRoomProperties;
         //ルームを作成
-        PhotonNetwork.CreateRoom(PhotonNetwork.LocalPlayer.NickName, roomOptions);
+        PhotonNetwork.CreateRoom(nameValue, roomOptions);
     }
 
     #endregion
@@ -191,6 +189,7 @@ public class TitleController : MonoBehaviourPunCallbacks
     // マッチングが成功した時に呼ばれるコールバック
     public override void OnJoinedRoom()
     {
+        PhotonNetwork.LocalPlayer.NickName = nameValue;
         PhotonNetwork.IsMessageQueueRunning = false;
         Debug.Log("PUN / OnJoinedRoom");
         PhotonNetwork.LoadLevel("PUNFootball");
