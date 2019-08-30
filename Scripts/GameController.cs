@@ -34,7 +34,7 @@ public class GameController : MonoBehaviourPunCallbacks
 
     public void GameStart()
     {
-        CreatePlayer(GetAssignForTeamColor());
+        CreatePlayer(GetAssignTeamColor());
         CheckSphereActive();
         GetScore();
     }
@@ -61,8 +61,8 @@ public class GameController : MonoBehaviourPunCallbacks
         targetcam.SetTarget(player.transform);
     }
 
-    //既存プレイヤーの数が少ないチームカラーを取得
-    Color GetAssignForTeamColor()
+    //全既存プレイヤーを取得し、プレイヤー数が少ないチームカラーを返す
+    Color GetAssignTeamColor()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
         int redMemberCount = 0, greenMemberCount = 0;
@@ -86,7 +86,6 @@ public class GameController : MonoBehaviourPunCallbacks
         {
             return Color.green;
         }
-
     }
 
     //ボールがなかったら作成する
@@ -202,6 +201,7 @@ public class GameController : MonoBehaviourPunCallbacks
     //ルームを退出したときにコールバックされる
     public override void OnLeftRoom()
     {
+        GameObject.FindWithTag("Ads").GetComponent<AdsController>().ShowVideo();
         PhotonNetwork.LoadLevel("TitleScene");
     }
 }
